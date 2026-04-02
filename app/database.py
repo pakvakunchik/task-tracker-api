@@ -1,7 +1,19 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from constants import SQLALCHEMY_DATABASE_URI
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-Base = DeclarativeBase()
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
-session_local = sessionmaker(bind=engine)
+from app.constants import SQLALCHEMY_DATABASE_URI
+
+engine = create_engine(SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False})
+
+session_local = sessionmaker(autoflush=False, autocommit=False, bind=engine)
+
+Base = declarative_base()
+
+def get_db():
+    db = session_local()
+    try:
+        yield db
+    finally:
+        db.close()
+
