@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime
 from datetime import datetime
-
 from app.database import Base
 from app.enum import TaskStatus, TaskPriority
-
 
 class TaskModel(Base):
     __tablename__ = "tasks"
@@ -17,4 +15,3 @@ class TaskModel(Base):
 
     def __repr__(self):
         return f"Task(title={self.title}, status={self.status.value})"
-

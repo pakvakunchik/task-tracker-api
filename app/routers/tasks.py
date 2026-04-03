@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-
 from app.database import get_db
 from app.models import TaskModel
 from app.schemas import Task, TaskCreate, TaskUpdate
@@ -12,7 +11,7 @@ app = APIRouter(
     tags=["tasks"]
 )
 
-@app.post('/tasks', response_model=Task, status_code=201)
+@app.post('/', response_model=Task, status_code=201)
 async def create_task(task: TaskCreate, db: Session = Depends(get_db)) -> Task:
     db_task = TaskModel(
         title=task.title,
@@ -25,7 +24,7 @@ async def create_task(task: TaskCreate, db: Session = Depends(get_db)) -> Task:
     db.refresh(db_task)
     return db_task
 
-@app.get('/tasks', response_model=list[Task])
+@app.get('/', response_model=list[Task])
 async def get_tasks(
         db: Session = Depends(get_db),
         status: Optional[TaskStatus] = Query(None, description='фильтр по статусу'),
@@ -54,14 +53,14 @@ async def get_tasks(
     skip = (page - 1) * per_page
     return tasks.offset(skip).limit(per_page).all()
 
-@app.get('/tasks/{id}', response_model=Task)
+@app.get('/{id}', response_model=Task)
 async def get_task(id: int, db: Session = Depends(get_db)) -> Task:
     task = db.query(TaskModel).filter(TaskModel.id == id).first()
     if not task:
         raise HTTPException(status_code=404, detail='задача не найдена')
     return task
 
-@app.put('/tasks/{id}', response_model=Task)
+@app.put('/{id}', response_model=Task)
 async def update_task(id: int, task: TaskUpdate, db: Session = Depends(get_db)) -> Task:
     db_task = db.query(TaskModel).filter(TaskModel.id == id).first()
     if db_task is None:
@@ -74,7 +73,7 @@ async def update_task(id: int, task: TaskUpdate, db: Session = Depends(get_db)) 
     db.refresh(db_task)
     return db_task
 
-@app.delete('/tasks/{id}', response_model=Task)
+@app.delete('/{id}', response_model=Task)
 async def delete_task(id: int, db: Session = Depends(get_db)) -> Task:
     db_task = db.query(TaskModel).filter(TaskModel.id == id).first()
     if not db_task:
