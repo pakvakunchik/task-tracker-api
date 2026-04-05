@@ -4,7 +4,7 @@ from typing import List, Optional
 from app.database import get_db
 from app.models import TaskModel
 from app.schemas import Task, TaskCreate, TaskUpdate
-from app.enum import TaskStatus, TaskPriority
+from app.models_enums import TaskStatus, TaskPriority
 
 app = APIRouter(
     prefix="/tasks",

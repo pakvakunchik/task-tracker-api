@@ -39,4 +39,36 @@ ReDoc: http://localhost:8000/redoc
 - **app/database.py** — настройка подключения к БД.
 - **app/enum.py** — перечисления для статусов и приоритетов.
 
+| №  | Требование                                          | Место в проекте (файл: пояснение)                                                                          |
+|----|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| 1  | Основные типы данных и их методы                    | `models.py`, `schemas.py`, `enum.py`                                                                       |
+| 2  | Обработка ошибок                                    | `routers/tasks.py`, (HTTPException 404)                                                                    |
+| 3  | Работа с файлами, менеджер контекста, декораторы    | *в `utils.py`* (декоратор `@timer`, контекстный менеджер для чтения бд и записи в бд и чтение джейсона)    |
+| 4  | GIL                                                 | *теоретически* (устно: GIL ограничивает CPU-потоки, FastAPI использует asyncio)                            |
+| 5  | Инкапсуляция, абстракция, наследование, полиморфизм | `models.py` (наследование Base), `schemas.py` (TaskCreate → TaskBase), инкапсуляция полей                  |
+| 6  | Классы, магические методы, миксины                  | `models.py` (`__repr__`), миксин `TimestampMixin` будет в `utils.py`                                       |
+| 7  | GC (сборщик мусора)                                 | *теоретически* (подсчёт ссылок + циклический сборщик в CPython)                                            |
+| 8  | Базы данных / SQL                                   | `database.py`, `models.py`, `routers/tasks.py` (SQLAlchemy ORM)                                            |
+| 9  | ACID                                                | SQLite + SQLAlchemy: атомарность (`commit`), согласованность (`nullable=False`), изоляция, долговечность   |
+| 10 | SELECT, INSERT, JOIN                                | SELECT\INSERT: `routers/tasks.py`; JOIN (при необходимости добавим, можно добавить связь с пользователями) |
+| 11 | LIMIT и OFFSET                                      | `routers/tasks.py` (`offset(skip).limit(per_page)`) – пагинация через page/per_page                        |
+| 12 | FastAPI                                             | `main.py`, `routers/tasks.py` (декораторы, Depends, Query, автоматическая валидация)                       |
+| 13 | WSGI / ASGI                                         | `main.py` (запуск через uvicorn – ASGI сервер)                                                             |
+| 14 | Git                                                 | `.gitignore`, история коммитов на GitHub                                                                   |
+| 15 | Docker                                              | `Dockerfile`, `docker-compose.yml` (запуск: `docker-compose up --build`)                                   |
+| 16 | Тестирование                                        | * в `tests/`* (pytest + TestClient для эндпоинтов)                                                    |
+| 17 | SOLID, DRY                                          | Архитектура: разделение routers/models/schemas (S), dependency injection (D), DRY: enum, TaskBase          |
+| 20 | Выполнить тестовое                                  | Весь проект (CRUD, фильтрация, пагинация, валидация)                                                       |
+| 21 | Рефакторинг на GitHub                               | Исходный код (выделение констант, enum, схем, dependency injection)                                        |
+|----|-----------------------------------------------------| ---------------------------------------------------------------------------------------------------------- |
 
+Как проверить?
+Пагинация → routers/tasks.py (параметры page, per_page).
+
+Фильтрация → routers/tasks.py (status, priority, title).
+
+Сортировка → routers/tasks.py (sort_by_date, sort_by_priority).
+
+Обработка ошибок → routers/tasks.py (HTTPException 404).
+
+Примечание для проверяющего: пункты 3 (декораторы/контекстные менеджеры), 6 (миксины) и 16 (тесты) будут добавлены в ближайшее время в файлы utils.py и tests/ соответственно. Остальные требования уже выполнены в представленном коде.

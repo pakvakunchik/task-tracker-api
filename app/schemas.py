@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 from app.models import TaskStatus, TaskPriority
@@ -25,6 +25,5 @@ class Task(TaskBase):
     id: int
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
