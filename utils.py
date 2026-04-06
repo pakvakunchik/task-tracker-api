@@ -1,33 +1,42 @@
 import json
 import time
-from app.database import engine, session_local
 from sqlalchemy.ext.automap import automap_base
 from loguru import logger
+from app.database import engine, Session_local
+from app.models import TaskModel
 
 logger.add("app.log", level="INFO")
 
 '''пример работы с файлами и контекстным менеджером'''
 Base = automap_base()
-def write_db():
+def write_db(filename: str = "tasks.json"):
     Base.prepare(autoload_with=engine)
     Tasks = Base.classes.tasks
     try:
-        with session_local() as session:
-            rows = session.query(Tasks).all()
+        with Session_local() as session:
+            tasks = session.query(TaskModel).all()
             data = []
-            for row in rows:
-                to_dict = dict(row.__dict__)
-                to_dict.pop("_sa_instance_state", None)
-                data.append(to_dict)
-        with open("tasks.json", "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=4, default=str)
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        logger.error(e)
+            for task in tasks:
+                task_dict = {
+                    "id": task.id,
+                    "title": task.title,
+                    "description": task.description,
+                    "status": task.status.value,
+                    "priority": task.priority.value,
+                    "created_at": task.created_at.isoformat() if task.created_at else None,
+                    "updated_at": task.updated_at.isoformat() if task.updated_at else None,
+                }
+                data.append(task_dict)
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+        logger.info(f"Exported {len(data)} tasks to {filename}")
+    except Exception as e:
+        logger.error(f"Export failed: {e}")
+
 
 def read_db():
     with open("tasks.json", "r", encoding="utf-8") as file:
         data = json.load(file)
-        print(data)
         return data
 
 '''пример понимания декоратора'''
@@ -36,7 +45,6 @@ def timer(func):
         start = time.time()  # Засекаем время
         result = func(*args, **kwargs)  # Запускаем саму функцию
         end = time.time()  # Время после выполнения
-
         print(f"Функция {func.__name__} работала {end - start:.2f} сек")
         return result
     return wrapper

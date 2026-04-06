@@ -210,5 +210,8 @@ __marimo__/
 *.db-journal
 *.db-wal
 *.db-shm
-*.log
 *.json
+app.log
+database.db
+tasks.json
+test.db
